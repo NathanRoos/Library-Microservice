@@ -1,0 +1,99 @@
+# application.yaml
+
+# ======================
+# DEFAULT PROFILE
+# ======================
+spring:
+    profiles:
+        active: default
+
+app:
+    library-service:
+        host: localhost
+        port: 7001
+    libraryworker-service:
+        host: localhost
+        port: 7002
+    customer-service:
+        host: localhost
+        port: 7003
+
+server:
+    error:
+        include-message: always
+
+logging:
+    level:
+        root: INFO
+        com.nathanroos: DEBUG
+        org.springframework.boot.test: DEBUG
+        de.flapdoodle.embed.mongo: DEBUG
+        org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+
+---
+
+# ======================
+# DOCKER PROFILE
+# ======================
+spring:
+    config:
+        activate:
+            on-profile: docker
+    data:
+        mongodb:
+            host: mongo
+            port: 27017
+            username: user
+            password: pwd
+            authentication-database: admin
+            database: loan
+
+logging:
+    level:
+        org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+        org.mongodb.driver: DEBUG
+
+
+server:
+    port: 8080
+
+app:
+    library-service:
+        host: library-service
+        port: 8080
+    libraryworker-service:
+        host: libraryworker-service
+        port: 8080
+    customer-service:
+        host: customer-service
+        port: 8080
+
+
+---
+
+# ======================
+# TEST PROFILE
+# ======================
+spring:
+    config:
+        activate:
+            on-profile: test
+    data:
+        mongodb:
+            host: localhost
+            port: 0 # random port for embedded MongoDB
+            database: loanDb
+            username: user
+            password: pwd
+            auto-index-creation: true
+
+de:
+    flapdoodle:
+        mongodb:
+            embedded:
+                version: 6.0.5
+
+logging:
+    level:
+        root:
+        com.roos: DEBUG

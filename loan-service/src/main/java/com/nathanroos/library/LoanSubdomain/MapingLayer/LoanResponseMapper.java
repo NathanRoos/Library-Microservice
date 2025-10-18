@@ -1,0 +1,46 @@
+package com.nathanroos.library.LoanSubdomain.MapingLayer;
+
+import com.nathanroos.library.LoanSubdomain.DataAccessLayer.Loan;
+import com.nathanroos.library.LoanSubdomain.PresentationLayer.LoanController;
+import com.nathanroos.library.LoanSubdomain.PresentationLayer.LoanResponseModel;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.springframework.hateoas.Link;
+
+import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+@Mapper(componentModel = "spring")
+public interface LoanResponseMapper {
+
+    @Mapping(source = "loanIdentifier.loanId", target = "loanId")
+    @Mapping(source = "loanStatus", target = "loanStatus")
+    @Mapping(source = "loanDate", target = "loanDate")
+    @Mapping(source = "dueDate", target = "dueDate")
+
+    @Mapping(source = "libraryAccountIdentifier.accountId", target = "accountId")
+    @Mapping(source = "libraryAccountIdentifier.firstname", target = "customer_firstname")
+    @Mapping(source = "libraryAccountIdentifier.lastname", target = "customer_lastname")
+
+    @Mapping(source = "librarianIdentifier.librarianId", target = "librarianId")
+    @Mapping(source = "librarianIdentifier.firstname", target = "librarian_firstname")
+    @Mapping(source = "librarianIdentifier.lastname", target = "librarian_lastname")
+
+    @Mapping(source = "bookIdentifier.bookId", target = "bookId")
+    @Mapping(source = "bookIdentifier.title", target = "title")
+    @Mapping(source = "bookIdentifier.author", target = "author")
+    LoanResponseModel entityToResponseModel(Loan loan);
+
+    List<LoanResponseModel> entityListToResponseModelList(List<Loan> loans);
+
+    @AfterMapping
+    default void addLinks(@MappingTarget LoanResponseModel responseModel) {
+        Link selfLink = linkTo(methodOn(LoanController.class)
+                .getLoanByLoanId(responseModel.getAccountId(), responseModel.getLoanId())).withSelfRel();
+        responseModel.add(selfLink);
+    }
+}

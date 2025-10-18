@@ -1,0 +1,203 @@
+services:
+  # Library Service
+  library-service:
+    build: ./library-service
+    hostname: library-service
+#    ports:
+#      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-library/library-db
+    depends_on:
+      mysql-library:
+        condition: service_healthy
+
+  # Customer Service
+  customer-service:
+    build: ./customer-service
+    hostname: customer-service
+#    ports:
+#      - "8083:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres1/customer-db
+    depends_on:
+      postgres1:
+        condition: service_healthy
+
+  # Library Worker Service
+  libraryworker-service:
+    build: ./libraryworker-service
+    hostname: libraryworker-service
+#    ports:
+#      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-libraryworker/libraryworker-db
+    depends_on:
+      mysql-libraryworker:
+        condition: service_healthy
+
+  # Library DB
+  mysql-library:
+    image: mysql:5.7
+    container_name: mysql-library
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwd
+      - MYSQL_DATABASE=library-db
+      - MYSQL_USER=library-db
+      - MYSQL_PASSWORD=pwd
+    ports:
+      - "3310:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  # Customer DB
+  postgres1:
+    image: postgres:latest
+    hostname: postgres1
+    container_name: postgres1
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=customer-db
+      - PGUSER=customer-db
+      - POSTGRES_PASSWORD=pwd
+    volumes:
+      - ./data/postgres1:/var/lib/postgresql
+      - ./customer-service/data/init.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      #      test: ["CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost"]
+      test: "pg_isready -h postgres1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Library Worker DB
+  mysql-libraryworker:
+    image: mysql:5.7
+    container_name: mysql-libraryworker
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwd
+      - MYSQL_DATABASE=libraryworker-db
+      - MYSQL_USER=libraryworker-db
+      - MYSQL_PASSWORD=pwd
+    ports:
+      - "3311:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  # PHPMyAdmin for each DB
+  phpmyadmin-library:
+    image: phpmyadmin:5.2.0
+    container_name: PhpMyAdmin-library
+    links:
+      - mysql-library:db
+    restart: always
+    ports:
+      - 5013:80
+    environment:
+      - PMA_HOST=mysql-library
+      - PMA_PORT=3306
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin-customer
+    #    links:
+    #      - mysql-customer:db
+    restart: always
+    ports:
+      - 9000:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=9oE8M@example.com
+        - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - postgres1
+
+  phpmyadmin-libraryworker:
+    image: phpmyadmin:5.2.0
+    container_name: PhpMyAdmin-libraryworker
+    links:
+      - mysql-libraryworker:db
+    restart: always
+    ports:
+      - 5015:80
+    environment:
+      - PMA_HOST=mysql-libraryworker
+      - PMA_PORT=3306
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    hostname: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - customer-service
+      - libraryworker-service
+      - library-service
+      - loan-service
+
+
+  #Loan Service
+  loan-service:
+    build: ./loan-service
+#    hostname: loan-service
+    container_name: loan-service
+#    ports:
+#      - "8084:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  mongodb:
+    image: mongo:5.0
+    container_name: mongo
+    ports:
+      - "27019:27017"
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')", "--username", "user", "--password", "pwd", "--authenticationDatabase", "admin" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pwd
+      - MONGO_INITDB_DATABASE=loan
+    volumes:
+      - mongo:/data
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo_express
+    restart: always
+    ports:
+      - 8086:8081
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=user
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=pwd
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+volumes:
+  mongo:

@@ -1,0 +1,44 @@
+services:
+  libraryapplication:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: customer-service
+    ports:
+      - "8083:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      postgres1:
+        condition: service_healthy
+
+  postgres1:
+    image: postgres:16
+    container_name: postgres1
+    hostname: postgres1
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pwd
+      POSTGRES_DB: customer-db
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin-customer
+    restart: always
+    ports:
+      - 9000:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=4n9Xb@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - postgres1

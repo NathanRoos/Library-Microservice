@@ -1,0 +1,194 @@
+@startuml
+hide circle
+top to bottom direction
+scale 0.2
+!define ENTITY(entityName) class entityName << Entity>>
+!define ENUM(enumName) class enumName << Enum>>
+!define AGGREGATE(aggregateName) class aggregateName << Aggregate>>
+!define AGGREGATE_ROOT(aggregateRootName) class aggregateRootName << Aggregate Root>>
+!define VALUE_OBJECT(valueObjectName) class valueObjectName << Value Object>>
+!pragma useVerticalIf on
+skinparam dpi 350
+skinparam packageStyle rectangle
+skinparam rectangle {
+    BackgroundColor #f7f4eb
+    BorderColor Black
+}
+
+rectangle "Library Management" as BoundedContextLibrary #line.dashed {
+
+    rectangle "Customer Service" as BoundedContextCustomer {
+        AGGREGATE_ROOT(LibraryAccount) {
+            customerId: String
+            borrowedBooks: List<Book>
+            dueDates: List<Date>
+            statusOfLoan: List<LoanStatus>
+            rewardSystem: RewardSystem
+        }
+
+        VALUE_OBJECT(Customer) {
+            customerId: String
+            email: String
+            phoneNumber: String
+            firstName: String
+            lastName: String
+            contactPreference: PreferenceEnum
+        }
+
+        VALUE_OBJECT(LibraryAccountIdentifier) {
+            accountId: UUID
+        }
+
+        VALUE_OBJECT(RewardSystem) {
+            customerId: String
+            discount: Integer
+        }
+
+        ENUM(PreferenceEnum) {
+            CALL
+            MESSAGE
+            EMAIL
+            MAIL
+        }
+
+        Customer -- PreferenceEnum
+        LibraryAccount -- Customer
+        LibraryAccount -- LibraryAccountIdentifier
+        LibraryAccount -- RewardSystem
+    }
+
+    rectangle "Library Service" as BoundedContextLibrary {
+        ENTITY(Book) {
+            bookId: String
+            title: String
+            author: String
+            copiesAvailable: Integer
+            genre: GenreEnum
+        }
+
+        VALUE_OBJECT(BookIdentifier) {
+            bookIdentifier: UUID
+        }
+
+        ENUM(GenreEnum) {
+            FANTASY
+            SCIENCE_FICTION
+            ROMANCE
+            MYSTERY
+            THRILLER
+            HORROR
+            DRAMA
+            COMEDY
+            ACTION
+            ADVENTURE
+            BIOGRAPHY
+            HISTORICAL
+            POETRY
+        }
+
+        Book -- BookIdentifier
+        Book -- GenreEnum
+    }
+
+    rectangle "Loan Service" as BoundedContextLoan {
+        AGGREGATE_ROOT(Loan) {
+            loanId: String
+            customerId: String
+            employeeId: String
+            bookId: String
+            loanStatus: LoanStatus
+            loanDate: Date
+            dueDate: Date
+        }
+        note right of Loan
+            Invariant:
+            First name and last name in Loans will be null if it is null in the services
+        end note
+
+        VALUE_OBJECT(LoanIdentifier) {
+            loanId: UUID
+        }
+
+        ENUM(LoanStatus) {
+            PENDING
+            ACTIVE
+            COMPLETED
+            OVERDUE
+        }
+
+        Loan -- LoanIdentifier
+        Loan -- LoanStatus
+    }
+
+    rectangle "Library Worker Service" as BoundedContextEmployee {
+        ENTITY(Librarian) {
+            employeeId: String
+            name: String
+            email: String
+        }
+
+        VALUE_OBJECT(EmployeeIdentifier) {
+            employeeIdentifier: UUID
+        }
+
+        VALUE_OBJECT(EmployeePhoneNumber) {
+            phoneNumber: String
+            type: PhoneTypeEnum
+        }
+
+        ENUM(PhoneTypeEnum) {
+            MOBILE
+            WORK
+            HOME
+        }
+
+        VALUE_OBJECT(Position) {
+            positionCode: PositionCodeEnum
+            positionTitle: PositionTitleEnum
+        }
+
+        ENUM(PositionTitleEnum) {
+            MANAGER
+            LIBRARIAN
+            JANITOR
+        }
+
+        VALUE_OBJECT(EmployeeAddress) {
+            streetNumber: String
+            streetName: String
+            city: String
+            province: ProvinceEnum
+            postalCode: String
+        }
+
+        ENUM(ProvinceEnum) {
+            QUEBEC
+            ONTARIO
+            BRITISH_COLUMBIA
+            ALBERTA
+            SASKATCHEWAN
+            MANITOBA
+            NEW_BRUNSWICK
+            NEWFOUNDLAND
+            NOVA_SCOTIA
+            PRINCE_EDWARD_ISLAND
+        }
+
+        Librarian -- EmployeeIdentifier
+        Librarian -- EmployeePhoneNumber
+        EmployeePhoneNumber -- PhoneTypeEnum
+        Librarian -- Position
+        Position -- PositionTitleEnum
+        Librarian -- EmployeeAddress
+        EmployeeAddress -- ProvinceEnum
+    }
+
+    ' Cross-context relationships
+    LibraryAccount --> BookIdentifier
+    Loan --> BookIdentifier
+    Loan --> LibraryAccountIdentifier
+    LibraryAccount --> LoanIdentifier
+    Librarian --> LoanIdentifier
+    Loan --> EmployeeIdentifier
+}
+@enduml

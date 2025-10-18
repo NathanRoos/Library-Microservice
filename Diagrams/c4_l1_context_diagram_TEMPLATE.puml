@@ -1,0 +1,16 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+
+title System Context Diagram for Library System
+
+Person(customer, "Customer", "A customer of the library")
+Person(librarianWorker, "LibrarianWorker", "An employee of the library")
+Person(library_Inventory, "Library", "The books of the library")
+System(library, "Library Management", "Allows library workers to loan out books to customers")
+
+Rel(customer, library, "Views the inventory to loan a book")
+Rel(librarianWorker, library, "tracks inventory of the library and customer loans")
+Rel(library,library_Inventory, "Tracks the inventory of the library")
+
+'SHOW_LEGEND()
+@enduml

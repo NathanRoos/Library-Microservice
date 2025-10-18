@@ -1,0 +1,5 @@
+include 'customer-service'
+include 'libraryworker-service'
+include 'loan-service'
+include 'library-service'
+include 'api-gateway'

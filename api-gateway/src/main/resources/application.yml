@@ -1,0 +1,46 @@
+# Default Spring Profile
+server:
+    error:
+        include-message: always
+
+logging:
+    level:
+        root: INFO
+        com.nathanroos: DEBUG
+
+app:
+    customer-service:
+        host: localhost
+        port: 7001
+    libraryworker-service:
+        host: localhost
+        port: 7002
+    library-service:
+        host: localhost
+        port: 7003
+    loan-service:
+        host: localhost
+        port: 7004
+---
+
+spring:
+    config:
+        activate:
+            on-profile: docker
+
+server:
+    port: 8080
+
+app:
+    customer-service:
+        host: customer-service
+        port: 8080
+    library-service:
+        host: library-service
+        port: 8080
+    libraryworker-service:
+        host: libraryworker-service
+        port: 8080
+    loan-service:
+        host: loan-service
+        port: 8080
