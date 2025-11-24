@@ -18,7 +18,7 @@ RUN chmod +x gradlew
 RUN ./gradlew bootJar --no-daemon
 
 # Stage 2: Run the application
-FROM openjdk:21-jdk
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
 ARG JAR_FILE=build/libs/*.jar
