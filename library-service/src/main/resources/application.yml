@@ -18,18 +18,18 @@ spring:
         activate:
             on-profile: docker
 
-#    datasource:
-#            url: ${SPRING_DATASOURCE_URL}
-#            username: ${SPRING_DATASOURCE_USERNAME}
-#            password: ${SPRING_DATASOURCE_PASSWORD}
-#            driver-class-name: com.mysql.cj.jdbc.Driver
+    datasource:
+            url: jdbc:mysql://mysql-library/library-db
+            username: library-db
+            password: pwd
+
 
     jpa:
         show-sql: true
         hibernate:
             ddl-auto: none   #use create to allow jpa to auto-generate from Entity classes; use none to use schema-h2.sql
 
-    defer-datasource-initialization: true
+        defer-datasource-initialization: true
 
     sql:
         init:
