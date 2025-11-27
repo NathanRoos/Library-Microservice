@@ -1,6 +1,5 @@
 server:
     port: 8080  # The port on which the application will run.
-    address: 0.0.0.0
     #    servlet:
     #        context-path: /api  # The base path for all endpoints in the application.
     error:
@@ -19,21 +18,39 @@ spring:
             on-profile: docker
 
     datasource:
-            url: jdbc:mysql://mysql-library/library-db
-            username: library-db
-            password: pwd
+        url: jdbc:mysql://mysql-library/library-db
+        username: library-db
+        password: pwd
 
-
+    # JPA (Java Persistence API) configuration for database interaction
     jpa:
-        show-sql: true
+        # Hibernate-specific settings
         hibernate:
-            ddl-auto: none   #use create to allow jpa to auto-generate from Entity classes; use none to use schema-h2.sql
-
+            # Hibernate schema generation mode.
+            # "none" means no schema changes are made automatically.
+            # Other options include "create", "update", "validate", etc.
+            ddl-auto: none
+        # Whether to log SQL statements to the console. Useful for debugging.
+        show-sql: true
+        # Additional properties for Hibernate
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.MySQLDialect
+                # Whether to format SQL statements in logs for better readability.
+                format_sql: true
         defer-datasource-initialization: true
 
+    # SQL initialization settings
     sql:
         init:
-            platform: mysql
+            # Specifies the database platform (MySQL in this case).
+            platform: psql
+            # Spring Boot will look for files named schema-mysql.sql and data-mysql.sql
+            # rather than the generic schema-mysql.sql and data-mysql.sql.
+            # Specifies when to initialize the database.
+            # "always" means SQL scripts will always be executed on startup.
             mode: always
-            schema-locations: classpath:schema.sql
-            data-locations: classpath:data.sql
+            schema-location: classpath:schema-psql.sql
+            data-location: classpath:data-psql.sql
+
+spring.datasource.hikari.initializationFailTimeout: 60000
