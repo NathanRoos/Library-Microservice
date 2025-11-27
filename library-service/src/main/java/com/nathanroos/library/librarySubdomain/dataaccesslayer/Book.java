@@ -32,12 +32,16 @@ public class Book {
     private String firstname;
     private String lastname;
 
-    public Book(@NotNull String title, @NotNull String author, @NotNull Integer copiesAvailable, @NotNull GenreEnum genre) {
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
+    public Book(@NotNull String title, @NotNull String author, @NotNull Integer copiesAvailable, @NotNull GenreEnum genre, String imageUrl) {
         this.bookIdentifier = new BookIdentifier();
         this.title = title;
         this.author = author;
         this.copiesAvailable = copiesAvailable;
         this.genre = genre;
+        this.imageUrl = imageUrl;
     }
 
 }

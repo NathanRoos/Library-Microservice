@@ -18,8 +18,8 @@ public interface BookRequestMapper {
             @Mapping(source = "bookRequestModel.copiesAvailable", target = "copiesAvailable"),
             @Mapping(source = "bookRequestModel.genre", target = "genre"),
             @Mapping(source = "bookRequestModel.firstname", target = "firstname"),
-            @Mapping(source = "bookRequestModel.lastname", target = "lastname")
-
+            @Mapping(source = "bookRequestModel.lastname", target = "lastname"),
+            @Mapping(source = "bookRequestModel.imageUrl", target = "imageUrl")
 
     })
     Book requestModelToEntity(BookRequestModel bookRequestModel, BookIdentifier bookIdentifier);

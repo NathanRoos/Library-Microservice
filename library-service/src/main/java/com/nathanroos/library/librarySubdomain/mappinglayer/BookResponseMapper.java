@@ -26,6 +26,7 @@ public interface BookResponseMapper {
     @Mapping(source = "copiesAvailable", target = "copiesAvailable")
     @Mapping(source = "firstname", target = "firstname")
     @Mapping(source = "lastname", target = "lastname")
+    @Mapping(source = "imageUrl", target = "imageUrl")
     BookResponseModel entityToResponseModel(Book book);
 
     List<BookResponseModel> entityListToResponseModelList(List<Book> Books);

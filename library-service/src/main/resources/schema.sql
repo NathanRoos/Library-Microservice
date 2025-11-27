@@ -34,5 +34,6 @@ CREATE TABLE books
 
         'POETRY', 'NON_FICTION'),
     firstname       VARCHAR(255),
-    lastname        VARCHAR(255)
+    lastname        VARCHAR(255),
+    image_url       VARCHAR(500)
 );

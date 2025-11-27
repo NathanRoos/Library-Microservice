@@ -15,5 +15,5 @@ public class BookRequestModel extends RepresentationModel<BookResponseModel> {
     String title;
     String author;
     Integer copiesAvailable;
-
+    String imageUrl;
 }

@@ -17,5 +17,6 @@ public class BookRequestModel {
     String title;
     String author;
     Integer copiesAvailable;
+    String imageUrl;
 
 }
